@@ -5,8 +5,10 @@
       <h1 class="title">Sign up</h1>
 
       <form method="post" action=".">
-        {% csrf_token %} {{ form.as_p }}
-
+        {% csrf_token %} 
+        <br>
+        {{ form.as_p }}
+        <br>
         <button class="button is-success" type="submit">Sign up</button>
       </form>
     </div>

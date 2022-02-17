@@ -21,8 +21,8 @@ from django.urls import path
 from django.contrib.auth import views
 from apps.core.views import frontpage, signup
 from apps.feed.views import feed, search
-from apps.userprofile.views import userprofile, edit_profile, follow_user, unfollow_user, followers, follows
-from apps.feed.api import api_add_post, api_add_like
+from apps.talkerprofile.views import talkerprofile, edit_profile, follow_talker, unfollow_talker, followers, follows
+from apps.feed.api import api_add_talk, api_add_like
 from apps.conversation.api import api_add_message
 from apps.conversation.views import conversations, conversation
 from apps.notification.views import notifications
@@ -44,16 +44,16 @@ urlpatterns = [
     #
     #
 
-    path('u/<str:username>/', userprofile, name='userprofile'),
+    path('u/<str:username>/', talkerprofile, name='talkerprofile'),
     path('u/<str:username>/followers/', followers, name='followers'),
     path('u/<str:username>/follows/', follows, name='follows'),
-    path('u/<str:username>/follow/', follow_user, name='follow_user'),
-    path('u/<str:username>/unfollow/', unfollow_user, name='unfollow_user'),
+    path('u/<str:username>/follow/', follow_talker, name='follow_talker'),
+    path('u/<str:username>/unfollow/', unfollow_talker, name='unfollow_talker'),
 
     #
     # API
 
-    path('api/add_post/', api_add_post, name='api_add_post'),
+    path('api/add_talk/', api_add_talk, name='api_add_talk'),
     path('api/add_like/', api_add_like, name='api_add_like'),
     path('api/add_message/', api_add_message, name='api_add_message'),
 

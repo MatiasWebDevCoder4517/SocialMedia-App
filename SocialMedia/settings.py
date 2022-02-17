@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 
     ## MyApps ##
     'apps.core',
-    'apps.userprofile',
+    'apps.talkerprofile',
     'apps.feed',
     'apps.conversation',
     'apps.notification',

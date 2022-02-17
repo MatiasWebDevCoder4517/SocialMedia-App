@@ -3,13 +3,13 @@
   <div class="columns">
     <div class="column is-12">
       <div class="wrapper-form">
-        <form v-on:submit.prevent="submitPost()">
+        <form v-on:submit.prevent="submitTalk()">
           <div class="field">
             <div class="control">
               <textarea
                 class="textarea"
                 v-model="body"
-                placeholder="What are you posting?"
+                placeholder="What are you talking?"
               ></textarea>
             </div>
           </div>
@@ -22,35 +22,35 @@
         </form>
       </div>
 
-      <div class="wrapper-posts">
-        <div class="post" v-for="post in posts">
+      <div class="wrapper-talks">
+        <div class="talk" v-for="talk in talks">
           <article class="media">
             <figure class="media-left">
               <p class="image is-64x64">
-                <img :src="post.avatar" />
+                <img :src="talk.avatar" />
               </p>
             </figure>
 
             <div class="media-content">
               <div class="content">
                 <p>
-                  <strong>[[ post.poster ]]</strong>
-                  <small>[[ post.created_at ]]</small>
+                  <strong>[[ talk.talker ]]</strong>
+                  <small>[[ talk.created_at ]]</small>
                   <br />
-                  [[ post.body ]]
+                  [[ talk.body ]]
                 </p>
               </div>
             </div>
           </article>
         </div>
 
-        {% for post in posts %}
-        <div class="post">
+        {% for talk in talks %}
+        <div class="talk">
           <article class="media">
             <figure class="media-left">
               <p class="image is-64x64">
-                {% if post.created_by.userprofile.avatar %}
-                <img src="{{ post.created_by.userprofile.avatar.url }}" />
+                {% if talk.created_by.talkerprofile.avatar %}
+                <img src="{{ talk.created_by.talkerprofile.avatar.url }}" />
                 {% endif %}
               </p>
             </figure>
@@ -59,22 +59,23 @@
               <div class="content">
                 <p>
                   <strong
-                    ><a href="{% url 'userprofile' post.created_by.username %}"
-                      >{{ post.created_by.username }}</a
+                    ><a
+                      href="{% url 'talkerprofile' talk.created_by.username %}"
+                      >{{ talk.created_by.username }}</a
                     ></strong
                   >
-                  <small>{{ post.created_at|naturaltime }}</small>
+                  <small>{{ talk.created_at|naturaltime }}</small>
                   <br />
-                  {{ post.body }}
+                  {{ talk.body }}
                   <br />
                   <a
-                    @click="likePost({{ post.id}})"
-                    v-if="!liked_posts.includes({{ post.id }})"
+                    @click="likeTalk({{ talk.id}})"
+                    v-if="!liked_talks.includes({{ talk.id }})"
                     >Like</a
                   >
-                  <span v-if="liked_posts.includes({{ post.id }})">Liked</span>
-                  <small id="likes-{{ post.id }}"
-                    >{{ post.likes.count }} likes</small
+                  <span v-if="liked_talks.includes({{ talk.id }})">Liked</span>
+                  <small id="likes-{{ talk.id }}"
+                    >{{ talk.likes.count }} likes</small
                   >
                 </p>
               </div>
@@ -93,20 +94,20 @@
       delimiters: ['[[', ']]'],
       data () {
           return {
-              posts: [],
+              talks: [],
               body: '',
-              poster: '{{ request.user.username }}',
+              talker: '{{ request.user.username }}',
               created_at: 'Now',
-              avatar: '{% if request.user.userprofile.avatar %}{{ request.user.userprofile.avatar.url }}{% endif %}',
-              liked_posts: [{% for post in posts %}{% if post.liked %}{{ post.id }},{% endif %}{% endfor %}]
+              avatar: '{% if request.user.talkerprofile.avatar %}{{ request.user.talkerprofile.avatar.url }}{% endif %}',
+              liked_talks: [{% for talk in talks %}{% if talk.liked %}{{ talk.id }},{% endif %}{% endfor %}]
           }
       },
       methods: {
-          likeOink(post_id) {
-              this.liked_posts.push(parseInt(post_id));
+          likeTalk(talk_id) {
+              this.liked_talks.push(parseInt(talk_id));
 
-              var post = {
-                  'post_id': post_id
+              var talk = {
+                  'talk_id': talk_id
               };
 
               fetch('/api/add_like/', {
@@ -116,7 +117,7 @@
                       'X-CSRFToken': '{{ csrf_token }}'
                   },
                   credentials: 'same-origin',
-                  body: JSON.stringify(post)
+                  body: JSON.stringify(talk)
               })
               .then((response) => {
                   console.log(response);
@@ -125,33 +126,33 @@
                   console.log(error);
               });
 
-              const el = document.getElementById('likes-' + post_id);
+              const el = document.getElementById('likes-' + talk_id);
               const likes = parseInt(el.innerHTML.split(' ')[0] + 1);
               el.innerHTML = likes + ' likes';
           },
-          submitOink() {
-              console.log('submitPost');
+          submitTalk() {
+              console.log('submitTalk');
 
               if (this.body.length > 0) {
-                  var post = {
+                  var talk = {
                       'body': this.body,
-                      'poster': this.poster,
+                      'talker': this.talker,
                       'created_at': this.created_at,
                       'avatar': this.avatar
                   };
 
-                  this.posts.unshift(posts);
+                  this.talks.unshift(talk);
 
                   // Send to backend
 
-                  fetch('/api/add_post/', {
+                  fetch('/api/add_talk/', {
                       method: 'POST',
                       headers: {
                           'Content-Type': 'application/json',
                           'X-CSRFToken': '{{ csrf_token }}'
                       },
                       credentials: 'same-origin',
-                      body: JSON.stringify(post)
+                      body: JSON.stringify(talk)
                   })
                   .then((response) => {
                       console.log(response);

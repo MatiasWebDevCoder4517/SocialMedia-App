@@ -20,8 +20,8 @@ def signup(request):
     else:
         form = UserCreationForm()
 
-    context = {
+    """ context = {
         {'form': form}
-    }
+    } """
 
-    return render(request, 'core/signup.html', context)
+    return render(request, 'core/signup.html', {'form': form})

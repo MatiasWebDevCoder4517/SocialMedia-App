@@ -9,12 +9,12 @@ from .models import Conversation, ConversationMessage
 def conversations(request):
     conversations = request.user.conversations.all()
 
-    context = {
+    """ context = {
         {'conversations': conversations}
 
-    }
+    } """
 
-    return render(request, 'conversation/conversations.html', context)
+    return render(request, 'conversation/conversations.html', {'conversations': conversations})
 
 
 @login_required
@@ -31,8 +31,8 @@ def conversation(request, user_id):
         conversation.users.add(recipient)
         conversation.save()
 
-        context = {
+        """ context = {
             {'conversation': conversation}
-        }
+        } """
 
-    return render(request, 'conversation/conversation.html', context)
+    return render(request, 'conversation/conversation.html', {'conversation': conversation})

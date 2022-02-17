@@ -7,15 +7,15 @@ from django.contrib.auth.models import User
 
 from apps.notification.utilities import create_notification
 
-from .models import Post, Like
+from .models import Talk, Like
 
 
 @login_required
-def api_add_post(request):
+def api_add_talk(request):
     data = json.loads(request.body)
     body = data['body']
 
-    post = Post.objects.create(body=body, created_by=request.user)
+    talk = Talk.objects.create(body=body, created_by=request.user)
 
     results = re.findall("(^|[^@\w])@(\w{1,20})", body)
 
@@ -34,11 +34,11 @@ def api_add_post(request):
 @login_required
 def api_add_like(request):
     data = json.loads(request.body)
-    post_id = data['post_id']
+    talk_id = data['talk_id']
 
-    if not Like.objects.filter(post_id=post_id).filter(created_by=request.user).exists():
-        like = Like.objects.create(post_id=post_id, created_by=request.user)
-        post = Post.objects.get(pk=post_id)
-        create_notification(request, post.created_by, 'like')
+    if not Like.objects.filter(talk_id=talk_id).filter(created_by=request.user).exists():
+        like = Like.objects.create(talk_id=talk_id, created_by=request.user)
+        talk = Talk.objects.get(pk=talk_id)
+        create_notification(request, talk.created_by, 'like')
 
     return JsonResponse({'success': True})

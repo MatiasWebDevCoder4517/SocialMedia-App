@@ -2,31 +2,27 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
-from .models import Post
+from .models import Talk
 
 
 @login_required
 def feed(request):
     userids = [request.user.id]
 
-    for poster in request.user.userprofile.follows.all():
-        userids.append(poster.user.id)
+    for talker in request.user.talkerprofile.follows.all():
+        userids.append(talker.user.id)
 
-    posts = Post.objects.filter(created_by_id__in=userids)
+    talks = Talk.objects.filter(created_by_id__in=userids)
 
-    for post in posts:
-        likes = post.likes.filter(created_by_id=request.user.id)
+    for talk in talks:
+        likes = talk.likes.filter(created_by_id=request.user.id)
 
         if likes.count() > 0:
-            post.liked = True
+            talk.liked = True
         else:
-            post.liked = False
+            talk.liked = False
 
-    context = {
-        {'posts': posts}
-    }
-
-    return render(request, 'feed/feed.html', context)
+    return render(request, 'feed/feed.html', {'talks': talks})
 
 
 @login_required
@@ -34,16 +30,16 @@ def search(request):
     query = request.GET.get('query', '')
 
     if len(query) > 0:
-        posters = User.objects.filter(username__icontains=query)
-        posts = Post.objects.filter(body__icontains=query)
+        talkers = User.objects.filter(username__icontains=query)
+        talks = Talk.objects.filter(body__icontains=query)
     else:
-        posters = []
-        posts = []
+        talkers = []
+        talks = []
 
     context = {
         'query': query,
-        'posters': posters,
-        'posts': posts
+        'talkers': talkers,
+        'talks': talks
     }
 
     return render(request, 'feed/search.html', context)

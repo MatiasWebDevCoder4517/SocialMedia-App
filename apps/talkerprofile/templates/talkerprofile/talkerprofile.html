@@ -1,0 +1,129 @@
+{% extends 'core/base.html' %} {% load humanize %} {% block content %}
+<div class="container" id="talkerprofileapp">
+  <div class="columns">
+    <div class="column is-12">
+      <h1 class="title">{{ user.username }}</h1>
+
+      {% if user.talkerprofile.avatar %}
+      <figure class="image is-128x128">
+        <img src="{{ user.talkerprofile.avatar.url }}" />
+      </figure>
+      {% endif %}
+
+      <hr />
+
+      <p>
+        <a href="{% url 'followers' user.username %}"
+          >Followers: {{ user.talkerprofile.followed_by.count }}</a
+        >
+      </p>
+      <p>
+        <a href="{% url 'follows' user.username %}"
+          >Follows: {{ user.talkerprofile.follows.count }}</a
+        >
+      </p>
+
+      {% if user != request.user %}
+      <a href="{% url 'conversation' user.id %}" class="button is-info"
+        >Send message</a
+      >
+
+      {% if request.user.talkerprofile in user.talkerprofile.followed_by.all %}
+      <a
+        href="{% url 'unfollow_talker' user.username %}"
+        class="button is-danger"
+        >Unfollow</a
+      >
+      {% else %}
+      <a
+        href="{% url 'follow_talker' user.username %}"
+        class="button is-success"
+        >Follow</a
+      >
+      {% endif %} {% endif %}
+    </div>
+  </div>
+
+  <div class="columns">
+    <div class="column is-8">
+      <div class="wrapper-talks">
+        {% for talk in talks %}
+        <div class="talk">
+          <article class="media">
+            <figure class="media-left">
+              <p class="image is-64x64">
+                {% if user.talkerprofile.avatar %}
+                <img src="{{ user.talkerprofile.avatar.url }}" />
+                {% endif %}
+              </p>
+            </figure>
+
+            <div class="media-content">
+              <div class="content">
+                <p>
+                  <strong>{{ talk.created_by.username }}</strong>
+                  <small>{{ talk.created_at|naturaltime }}</small>
+                  <br />
+                  {{ talk.body }}
+                  <br />
+                  <a
+                    @click="likeTalk({{ talk.id}})"
+                    v-if="!liked_talks.includes({{ talk.id }})"
+                    >Like</a
+                  >
+                  <span v-if="liked_talks.includes({{ talk.id }})">Liked</span>
+                  <small id="likes-{{ talk.id }}"
+                    >{{ talk.likes.count }} likes</small
+                  >
+                </p>
+              </div>
+            </div>
+          </article>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<script>
+  new Vue({
+      el: '#talkerprofileapp',
+      delimiters: ['[[', ']]'],
+      data () {
+          return {
+              liked_talks: [{% for talk in talks %}{% if talk.liked %}{{ talk.id }},{% endif %}{% endfor %}]
+          }
+      },
+      methods: {
+          likeTalk(talk_id) {
+              this.liked_talks.push(parseInt(talk_id));
+
+              var talk = {
+                  'talk_id': talk_id
+              };
+
+              fetch('/api/add_like/', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRFToken': '{{ csrf_token }}'
+                  },
+                  credentials: 'same-origin',
+                  body: JSON.stringify(talk)
+              })
+              .then((response) => {
+                  console.log(response);
+              })
+              .catch((error) => {
+                  console.log(error);
+              });
+
+              const el = document.getElementById('likes-' + talk_id);
+              const likes = parseInt(el.innerHTML.split(' ')[0] + 1);
+              el.innerHTML = likes + ' likes';
+          }
+      }
+  })
+</script>
+{% endblock %}
