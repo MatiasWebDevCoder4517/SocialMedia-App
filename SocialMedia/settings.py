@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'apps.userprofile',
     'apps.feed',
     'apps.conversation',
+    'apps.notification',
 
 ]
 
